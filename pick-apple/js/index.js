@@ -9,16 +9,16 @@ var states = {
             game.stage.backgroundColor = '#000';
             //加载资源
             game.load.crossOrigin = 'anonymous';
-            game.load.image('bg','//172.28.152.124:3000/assets/images/bg.png');
-            game.load.image('dude','//172.28.152.124:3000/assets/images/dude.png');
-            game.load.image('green','//172.28.152.124:3000/assets/images/green.png');
-            game.load.image('red','//172.28.152.124:3000/assets/images/red.png');
-            game.load.image('yellow','//172.28.152.124:3000/assets/images/yellow.png');
-            game.load.image('bomb','//172.28.152.124:3000/assets/images/bomb.png');
-            game.load.image('five','//172.28.152.124:3000/assets/images/five.png');
-            game.load.image('three','//172.28.152.124:3000/assets/images/three.png');
-            game.load.image('one','//172.28.152.124:3000/assets/images/one.png');
-            game.load.audio('bgMusic','//172.28.152.124:3000/assets/audio/bgMusic.mp3');
+            game.load.image('bg','assets/images/bg.png');
+            game.load.image('dude','assets/images/dude.png');
+            game.load.image('green','assets/images/green.png');
+            game.load.image('red','assets/images/red.png');
+            game.load.image('yellow','assets/images/yellow.png');
+            game.load.image('bomb','assets/images/bomb.png');
+            game.load.image('five','assets/images/five.png');
+            game.load.image('three','assets/images/three.png');
+            game.load.image('one','assets/images/one.png');
+            game.load.audio('bgMusic','assets/audio/bgMusic.mp3');
             //显示加载进度条
             var progressText = game.add.text(game.world.centerX,game.world.centerY,'0%',{
                 fontSize: '60px',
@@ -35,7 +35,7 @@ var states = {
             var deadLine = false;
             setTimeout(function(){
                 deadLine = true;
-            },1000);
+            },0);
             //加载完毕回调方法
             function onLoad(){
                 if(deadLine){
@@ -87,8 +87,13 @@ var states = {
             title, //分数
             scoreMusic,
             bombMusic,
-            bgMusic;
+            bgMusic,
+            ground,
+            worldWidth,
+            worldHeight;
         this.create = function(){
+            worldWidth = game.world.width;
+            worldHeight = game.world.height;
             score = 0;
             //开启物理引擎
             game.physics.startSystem(Phaser.Physics.Arcade);
@@ -105,6 +110,19 @@ var states = {
             var bg = game.add.image(0,0,'bg');
             bg.width = game.world.width;
             bg.height = game.world.height;
+            //添加地面
+            ground = game.add.graphics(0,worldHeight-175);
+            ground.beginFill(0xFFFCB0);
+            // ground.beginFill(0x000000);
+            ground.moveTo(0,0);
+            ground.lineTo(worldWidth, 0);
+            ground.lineTo(worldWidth, worldHeight);
+            ground.lineTo(0,worldHeight);
+            ground.endFill();
+            game.physics.enable(ground);
+            ground.body.allowGravity = false;
+            // ground.body.immovable = true;
+            // ground.body.collideWorldBounds = true;
             //添加主角
             man = game.add.sprite(game.world.centerX,game.world.height*0.75,'dude');
             var manImage = game.cache.getImage('dude');
@@ -146,7 +164,9 @@ var states = {
             var appleTypes = ['green','red','yellow','bomb'];
             var appleTimer = game.time.create(true);
             appleTimer.loop(1000,function(){
-                var x = Math.random() * game.world.width;
+                // var x = Math.random() * game.world.width;
+                var offset = 30;
+                var x = Math.floor(Math.random() * (game.world.width - offset - offset) + offset);
                 var index = Math.floor(Math.random() * appleTypes.length);
                 var type = appleTypes[index];
                 var apple = apples.create(x,0,type);
@@ -162,18 +182,25 @@ var states = {
                 apple.body.onWorldBounds = new Phaser.Signal();
                 apple.body.onWorldBounds.add(function(apple,up,down,left,right){
                     if(down){
-                        apple.kill();
-                        if(apple.type !== 'bomb'){
-                            game.state.start('over',true,false,score);
-                        }
+                        killApple(apple,score);
                     }
                 });
             });
             appleTimer.start();
         };
         this.update = function(){
+            // game.physics.arcade.collide(ground,apples);
             game.physics.arcade.overlap(man,apples,pickApple,null,this);
+            game.physics.arcade.overlap(ground,apples,function(ground,apple){
+                killApple(apple,score);
+            },null,this);
         };
+        function killApple(apple,score){
+            apple.kill();
+            if(apple.type !== 'bomb'){
+                game.state.start('over',true,false,score);
+            }
+        }
         //接触事件
         function pickApple(man,apple){
             if(apple.type == 'bomb'){
