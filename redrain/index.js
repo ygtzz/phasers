@@ -103,11 +103,11 @@ game.states.play = function(){
         var redgroup = this.add.group();
         this.redgroup = redgroup;
         redgroup.enableBody = true;
-        redgroup.createMultiple(8,'redpack');
+        redgroup.createMultiple(13,'redpack');
         //红包组全体添加边界检测和边界销毁
         redgroup.setAll('outOfBoundsKill',true);
         redgroup.setAll('checkWorldBounds',true);
-        game.time.events.loop(300,this.fBuildRedpack,this);
+        game.time.events.loop(200,this.fBuildRedpack,this);
     }
     this.update = function(){
        this.physics.arcade.overlap(this.redgroup,this.player,function(player,redpack){
@@ -115,24 +115,18 @@ game.states.play = function(){
        },null,null,this);
     }
     this.fBuildRedpack = function(){
-        var item = this.redgroup.getFirstExists(false);
+        //没有自动创建，getFirstDead和getFistExists此处等价
+        // var item = this.redgroup.getFirstDead(true);
+        var item = this.redgroup.getFirstExists(false,true);
         var left = this.rnd.between(60,gWidth - 60);
         console.log(this.redgroup.length);
         if(item){
             //由于有超出边界检测，所以不能设置y为负值
             item.reset(left,0);
             item.scale.set(0.5);
-            // item.body.gravity.y = 300;
             item.body.velocity.y = 300;
-        }
-        else{
-            var redpack = this.add.sprite(left,0,'redpack');
-            redpack.scale.set(0.5);
-            this.physics.arcade.enable(redpack);
-            redpack.body.velocity.y = 300;
-            redpack.checkWorldBounds = true;
-            redpack.outOfBoundsKill = true;
-            this.redgroup.add(redpack);
+            item.checkWorldBounds = true;
+            item.outOfBoundsKill = true;
         }
     }
 }
