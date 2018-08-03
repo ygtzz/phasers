@@ -100,7 +100,7 @@ game.states.play = function(){
         //监听按下事件
         game.input.onDown.add(function(pointer){
             //palyer.x是主角的横向中心，判断是指触摸点在主角的最左侧到最右侧的坐标范围内，
-            //就是点击的是小人本身，不判断y坐标
+            //就是点击的是小人本身，未判断y坐标
             // if(Math.abs(pointer.x - player.x) < player.width/2){
             //     touching = true;
             // }
@@ -134,13 +134,23 @@ game.states.play = function(){
     }
     this.fBuildRedpack = function(){
         var item = this.redgroup.getFirstExists(false);
+        var left = this.rnd.between(60,gWidth - 60);
+        console.log(this.redgroup.length);
         if(item){
-            var left = this.rnd.between(60,gWidth - 60);
             //由于有超出边界检测，所以不能设置y为负值
             item.reset(left,0);
             item.scale.set(0.5);
             // item.body.gravity.y = 300;
             item.body.velocity.y = 300;
+        }
+        else{
+            var redpack = this.add.sprite(left,0,'redpack');
+            redpack.scale.set(0.5);
+            this.physics.arcade.enable(redpack);
+            redpack.body.velocity.y = 300;
+            redpack.checkWorldBounds = true;
+            redpack.outOfBoundsKill = true;
+            this.redgroup.add(redpack);
         }
     }
 }
