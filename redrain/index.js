@@ -93,30 +93,12 @@ game.states.play = function(){
         player.anchor.set(0.5,1);
         this.physics.arcade.enable(player);
         this.player = player;
-        var playerW = this.player.width;
-        //添加主角运动
-        //是否正在触摸
-        var touching = false;
-        //监听按下事件
-        game.input.onDown.add(function(pointer){
-            //palyer.x是主角的横向中心，判断是指触摸点在主角的最左侧到最右侧的坐标范围内，
-            //就是点击的是小人本身，未判断y坐标
-            // if(Math.abs(pointer.x - player.x) < player.width/2){
-            //     touching = true;
-            // }
-            touching = true;
-        });
-        //监听离开事件
-        game.input.onUp.add(function(){
-            touching = false;
-        });
-        //监听滑动事件
-        game.input.addMoveCallback(function(pointer,x,y,isTap){
-            if(!isTap && touching){
-                x = mid(x, playerW/2, gWidth - playerW/2);
-                player.x = x;
-            }
-        });
+        player.inputEnabled = true;
+        //只能水平方向上拖动
+        player.input.allowVerticalDrag = false;
+        //限制主角只能在世界中移动，不能超出屏幕
+        var dragRect = new Phaser.Rectangle(0,0,gWidth,gHeight);
+        player.input.enableDrag(false,false,false,255,dragRect);
         //定时器添加红包
         var redgroup = this.add.group();
         this.redgroup = redgroup;
