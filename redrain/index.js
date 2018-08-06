@@ -28,9 +28,8 @@ game.states.boot = function(){
         this.load.image('footer_logo','assets/images/footer_logo.png');
         this.load.image('play_bg','assets/images/state2_bg.jpg');
         this.load.image('redpack','assets/images/prod_redpacket.png');
-        this.load.image('redpack','assets/images/prod_redpacket.png');
-        // this.load.image('player_sprites','assets/images/player_sprites.png');
-        this.load.image('player','assets/images/red_player0.png');
+        this.load.spritesheet('player_sprites','assets/images/player_sprites.png',190,230);
+        // this.load.image('player','assets/images/red_player0.png');
     }
     this.create = function(){
         this.state.start('play');
@@ -88,7 +87,7 @@ game.states.play = function(){
         land.lineTo(0,gHeight);
         this.land = land;
         //主角
-        var player = this.add.sprite(this.centerX,gHeight - 73/2,'player');
+        var player = this.add.sprite(this.centerX,gHeight - 73/2,'player_sprites',0);
         player.scale.set(0.5);
         player.anchor.set(0.5,1);
         this.physics.arcade.enable(player);
