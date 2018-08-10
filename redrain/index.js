@@ -104,8 +104,11 @@ game.states.play = function(){
         redgroup.enableBody = true;
         redgroup.createMultiple(13,'redpack');
         //红包组全体添加边界检测和边界销毁
-        redgroup.setAll('outOfBoundsKill',true);
         redgroup.setAll('checkWorldBounds',true);
+        // redgroup.setAll('outOfBoundsKill',true);
+        // redgroup.forEach(function(item){
+        //     item.events.onOutOfBounds.add(this.fRemoveRedpack,this);
+        // },this);
         game.time.events.loop(200,this.fBuildRedpack,this);
     }
     this.update = function(){
@@ -114,19 +117,24 @@ game.states.play = function(){
        },null,null,this);
     }
     this.fBuildRedpack = function(){
-        //没有自动创建，getFirstDead和getFistExists此处等价
+        //元素不足则自动创建，getFirstDead和getFistExists此处等价
         // var item = this.redgroup.getFirstDead(true);
         var item = this.redgroup.getFirstExists(false,true);
         var left = this.rnd.between(60,gWidth - 60);
         console.log(this.redgroup.length);
         if(item){
-            //由于有超出边界检测，所以不能设置y为负值
+            //为什么，Phaser不支持？不能设置y为负值
             item.reset(left,0);
+            item.visible = true;
             item.scale.set(0.5);
             item.body.velocity.y = 300;
             item.checkWorldBounds = true;
-            item.outOfBoundsKill = true;
+            // item.outOfBoundsKill = true;
+            item.events.onOutOfBounds.add(this.fRemoveRedpack,this);
         }
+    }
+    this.fRemoveRedpack = function(red){
+        red.kill();
     }
 }
 
