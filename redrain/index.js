@@ -91,6 +91,7 @@ game.states.play = function(){
         player.scale.set(0.5);
         player.anchor.set(0.5,1);
         this.physics.arcade.enable(player);
+        
         this.player = player;
         player.inputEnabled = true;
         //只能水平方向上拖动
@@ -106,6 +107,7 @@ game.states.play = function(){
         //红包组全体添加边界检测和边界销毁
         redgroup.setAll('checkWorldBounds',true);
         // redgroup.setAll('outOfBoundsKill',true);
+        redgroup.callAll('events.onOutOfBounds.add', 'events.onOutOfBounds', this.fRemoveRedpack);
         // redgroup.forEach(function(item){
         //     item.events.onOutOfBounds.add(this.fRemoveRedpack,this);
         // },this);
@@ -115,6 +117,11 @@ game.states.play = function(){
        this.physics.arcade.overlap(this.redgroup,this.player,function(player,redpack){
             redpack.kill();
        },null,null,this);
+       //设置小人的物理体积为高度的一半
+       var playerW = this.player.width,
+           playerH = this.player.height;
+        //由于scale 0.5的缘故，宽高设置要加倍
+       this.player.body.setSize(playerW*2,playerH,0,playerH);
     }
     this.fBuildRedpack = function(){
         //元素不足则自动创建，getFirstDead和getFistExists此处等价
@@ -123,9 +130,8 @@ game.states.play = function(){
         var left = this.rnd.between(60,gWidth - 60);
         console.log(this.redgroup.length);
         if(item){
-            //为什么，Phaser不支持？不能设置y为负值
-            item.reset(left,0);
-            item.visible = true;
+            //y坐标小于-49红包将不显示，原因未知
+            item.reset(left,-49);
             item.scale.set(0.5);
             item.body.velocity.y = 300;
             item.checkWorldBounds = true;
@@ -134,7 +140,14 @@ game.states.play = function(){
         }
     }
     this.fRemoveRedpack = function(red){
+        console.log('outof');
         red.kill();
+    }
+    this.render = function(){
+        this.redgroup.forEach(function(item){
+            game.debug.body(item);
+        });
+        game.debug.body(this.player);
     }
 }
 
