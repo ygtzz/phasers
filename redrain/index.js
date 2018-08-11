@@ -88,11 +88,10 @@ game.states.play = function(){
         this.land = land;
         //主角
         var player = this.add.sprite(this.centerX,gHeight - 73/2,'player_sprites',0);
+        this.player = player;
         player.scale.set(0.5);
         player.anchor.set(0.5,1);
         this.physics.arcade.enable(player);
-        
-        this.player = player;
         player.inputEnabled = true;
         //只能水平方向上拖动
         player.input.allowVerticalDrag = false;
