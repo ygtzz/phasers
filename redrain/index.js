@@ -125,6 +125,9 @@ game.states.play = function(){
             fill:'#fff'
         });
         countDownText.alignIn(countDownBg,Phaser.CENTER,2,3);
+        this.countDownText = countDownText;
+        game._count = 30;
+        this.countTimer = game.time.events.loop(1000,this.updateCountdown,this);
     }
     this.update = function(){
        var self = this;
@@ -138,6 +141,15 @@ game.states.play = function(){
            playerH = this.player.height;
         //由于scale 0.5的缘故，宽高设置要加倍
        this.player.body.setSize(playerW*2,playerH,0,playerH);
+    }
+    this.updateCountdown = function(){
+        game._count--;
+        if(game._count > -1){
+            this.countDownText.setText(game._count+'s');
+        }
+        else{
+            game.time.events.remove(this.countTimer);
+        }
     }
     this.updateScore = function(count){
         var self = this;
