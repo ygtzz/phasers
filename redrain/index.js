@@ -29,6 +29,7 @@ game.states.boot = function(){
         this.load.image('play_bg','assets/images/state2_bg.jpg');
         this.load.image('redpack','assets/images/prod_redpacket.png');
         this.load.spritesheet('player_sprites','assets/images/player_sprites.png',190,230);
+        this.load.image('countdown_bg','assets/images/countdown-bg.png');
         // this.load.image('player','assets/images/red_player0.png');
     }
     this.create = function(){
@@ -76,8 +77,6 @@ game.states.play = function(){
         this.physics.startSystem(Phaser.Physics.ARCADE);
         this.centerX = this.world.centerX;
         this.bg = this.add.image(0,0,'play_bg');
-        //红包动画
-        // game.add.tween(this.redpack).to({y:1300},3000,null,true,0,0,false);
         //大地
         var land = game.add.graphics(0,gHeight-127/2);
         land.beginFill(0xce9424);
@@ -88,6 +87,7 @@ game.states.play = function(){
         this.land = land;
         //主角
         var player = this.add.sprite(this.centerX,gHeight - 73/2,'player_sprites',0);
+        player._redCount = 0;
         this.player = player;
         player.scale.set(0.5);
         player.anchor.set(0.5,1);
@@ -111,16 +111,42 @@ game.states.play = function(){
         //     item.events.onOutOfBounds.add(this.fRemoveRedpack,this);
         // },this);
         game.time.events.loop(200,this.fBuildRedpack,this);
+        
+        //红包数量
+        this.redCount = this.add.text(34/2,55/2,'红包：0个',{
+            fontSize:'18px',
+            fill:'#e9524b'
+        });
+        //倒计时
+        var countDownBg = this.add.image(gWidth - 138/2,42/2,'countdown_bg');
+        countDownBg.scale.set(0.5);
+        var countDownText = this.add.text(0,0,'30s',{
+            fontSize:'15px',
+            fill:'#fff'
+        });
+        countDownText.alignIn(countDownBg,Phaser.CENTER,2,3);
     }
     this.update = function(){
+       var self = this;
        this.physics.arcade.overlap(this.redgroup,this.player,function(player,redpack){
             redpack.kill();
+            self.player._redCount++;
+            self.updateScore(self.player._redCount);
        },null,null,this);
        //设置小人的物理体积为高度的一半
        var playerW = this.player.width,
            playerH = this.player.height;
         //由于scale 0.5的缘故，宽高设置要加倍
        this.player.body.setSize(playerW*2,playerH,0,playerH);
+    }
+    this.updateScore = function(count){
+        var self = this;
+        //修改分数
+        self.redCount.setText('红包：' + count + '个');
+        //修改小人的红包数量
+        if(count < 3){
+            self.player.frame = count;
+        }
     }
     this.fBuildRedpack = function(){
         //元素不足则自动创建，getFirstDead和getFistExists此处等价
